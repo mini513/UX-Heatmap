@@ -134,7 +134,7 @@ def analyze():
     img_np = np.array(img).astype(np.float32) / 255.0
     img_tensor = torch.tensor(img_np).permute(2, 0, 1).unsqueeze(0).to(DEVICE)
 
-    centerbias = torch.zeros(1, 1, img_tensor.shape[2], img_tensor.shape[3]).to(DEVICE)
+    centerbias = torch.zeros(1, img_tensor.shape[2], img_tensor.shape[3]).to(DEVICE)
 
     with torch.no_grad():
         log_density = mdl(img_tensor, centerbias)

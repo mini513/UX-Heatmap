@@ -19,6 +19,7 @@
       --accent-glow: rgba(99, 102, 241, 0.15);
       --danger: #ef4444;
       --success: #22c55e;
+      --warning: #fbbf24;
       --radius: 12px;
     }
 
@@ -101,6 +102,35 @@
       color: var(--text-dim);
       margin-bottom: 12px;
     }
+
+    /* Sidebar tabs */
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-tab {
+      flex: 1;
+      padding: 12px 16px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .sidebar-tab:hover { color: var(--text); background: var(--surface-hover); }
+    .sidebar-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: contents; }
 
     /* Upload area */
     .upload-zone {
@@ -218,6 +248,11 @@
     .btn-secondary:hover { background: var(--border); }
     .btn-group { display: flex; gap: 8px; }
     .btn-group .btn { flex: 1; }
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.1); color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
 
     /* Main Content */
     .main {
@@ -302,6 +337,18 @@
       pointer-events: none;
       transition: opacity 0.3s;
     }
+
+    /* Drawing overlay for analysis mode */
+    .drawing-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: var(--radius);
+      cursor: crosshair;
+      z-index: 5;
+      display: none;
+    }
+    .drawing-overlay.active { display: block; }
 
     /* Compare mode */
     .compare-container {
@@ -391,6 +438,123 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+
+    /* ========== Analysis Mode ========== */
+
+    .analysis-hint {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .analysis-hint strong { color: var(--accent); }
+
+    /* Region list */
+    .region-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .region-item:hover { border-color: var(--text-dim); }
+    .region-item.active { border-color: var(--accent); background: var(--accent-glow); }
+    .region-color {
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .region-name-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      min-width: 0;
+      font-family: inherit;
+    }
+    .region-name-input::placeholder { color: var(--text-dim); }
+    .region-score {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 100px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .region-score.blind { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .region-score.caution { background: rgba(251,191,36,0.15); color: var(--warning); }
+    .region-score.good { background: rgba(34,197,94,0.15); color: var(--success); }
+    .region-score.excellent { background: rgba(99,102,241,0.15); color: var(--accent); }
+    .region-remove {
+      background: none; border: none;
+      color: var(--text-dim); cursor: pointer; font-size: 14px;
+      padding: 2px; border-radius: 4px;
+      opacity: 0; transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .region-item:hover .region-remove { opacity: 1; }
+    .region-remove:hover { color: var(--danger); }
+
+    .region-empty {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* Analysis report */
+    .analysis-report {
+      display: none;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    .analysis-report.visible { display: block; }
+    .report-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+    .report-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .report-card {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .report-card-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .report-card-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .report-verdict {
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .report-verdict.warn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
+    .report-verdict.ok { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); }
   </style>
 </head>
 <body>
@@ -430,40 +594,89 @@
         <div id="fileList"></div>
       </div>
 
-      <!-- Controls -->
-      <div class="sidebar-section">
-        <h3>히트맵 설정</h3>
-        <div class="control-group">
-          <label>투명도 <span id="opacityVal">60%</span></label>
-          <input type="range" id="opacitySlider" min="0" max="100" value="60" />
+      <!-- Sidebar Tabs -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="heatmap" onclick="switchSidebarTab('heatmap')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>
+          </svg>
+          히트맵
+        </button>
+        <button class="sidebar-tab" data-tab="analysis" onclick="switchSidebarTab('analysis')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Blind Spot
+        </button>
+      </div>
+
+      <!-- Tab: Heatmap Controls -->
+      <div class="tab-content active" id="tabHeatmap">
+        <div class="sidebar-section">
+          <h3>히트맵 설정</h3>
+          <div class="control-group">
+            <label>투명도 <span id="opacityVal">60%</span></label>
+            <input type="range" id="opacitySlider" min="0" max="100" value="60" />
+          </div>
+          <div class="control-group">
+            <label>컬러맵</label>
+            <select id="colormapSelect">
+              <option value="jet">Jet (기본)</option>
+              <option value="hot">Hot</option>
+              <option value="inferno">Inferno</option>
+              <option value="viridis">Viridis</option>
+              <option value="turbo">Turbo</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>블러 강도 <span id="blurVal">25</span></label>
+            <input type="range" id="blurSlider" min="5" max="50" value="25" />
+          </div>
         </div>
-        <div class="control-group">
-          <label>컬러맵</label>
-          <select id="colormapSelect">
-            <option value="jet">Jet (기본)</option>
-            <option value="hot">Hot</option>
-            <option value="inferno">Inferno</option>
-            <option value="viridis">Viridis</option>
-            <option value="turbo">Turbo</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>블러 강도 <span id="blurVal">25</span></label>
-          <input type="range" id="blurSlider" min="5" max="50" value="25" />
+        <div class="sidebar-section">
+          <button class="btn btn-primary" id="analyzeBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 12l5 5L20 4"/>
+            </svg>
+            분석 시작
+          </button>
+          <div class="btn-group" style="margin-top:8px;">
+            <button class="btn btn-secondary" id="downloadBtn" disabled>다운로드</button>
+            <button class="btn btn-secondary" id="clearBtn" disabled>초기화</button>
+          </div>
         </div>
       </div>
 
-      <!-- Actions -->
-      <div class="sidebar-section">
-        <button class="btn btn-primary" id="analyzeBtn" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 12l5 5L20 4"/>
-          </svg>
-          분석 시작
-        </button>
-        <div class="btn-group" style="margin-top:8px;">
-          <button class="btn btn-secondary" id="downloadBtn" disabled>다운로드</button>
-          <button class="btn btn-secondary" id="clearBtn" disabled>초기화</button>
+      <!-- Tab: Analysis Controls -->
+      <div class="tab-content" id="tabAnalysis">
+        <div class="sidebar-section">
+          <div class="analysis-hint">
+            이미지 위에 <strong>드래그</strong>하여 중요 영역을 마킹하세요.<br/>
+            히트맵 분석 후 영역별 주목도를 비교합니다.
+          </div>
+
+          <h3>마킹 영역 <span id="regionCount"></span></h3>
+          <div id="regionList">
+            <div class="region-empty">
+              마킹된 영역이 없습니다.<br/>이미지 위에서 드래그하세요.
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <button class="btn btn-primary" id="blindSpotBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/>
+              <path d="M15 19V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10"/>
+              <path d="M21 19V5a2 2 0 00-2-2h-2a2 2 0 00-2 2v14"/>
+            </svg>
+            Blind Spot 분석
+          </button>
+          <button class="btn btn-danger" id="clearRegionsBtn" style="margin-top:8px;" disabled>전체 삭제</button>
+        </div>
+
+        <div class="sidebar-section" id="reportSection" style="display:none;">
+          <div class="analysis-report visible" id="analysisReport"></div>
         </div>
       </div>
     </div>
@@ -522,6 +735,7 @@
         <div class="viewer" id="overlayViewer">
           <img id="originalImg" />
           <canvas class="heatmap-overlay" id="heatmapCanvas"></canvas>
+          <canvas class="drawing-overlay" id="drawingCanvas"></canvas>
         </div>
 
         <!-- Compare view -->
@@ -571,11 +785,20 @@
   <script>
     const API_URL = 'http://localhost:5000';
 
+    const REGION_COLORS = [
+      '#6366f1', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6',
+      '#ef4444', '#06b6d4', '#f97316', '#14b8a6', '#a855f7',
+    ];
+
     const state = {
       files: [],
       activeIndex: -1,
       currentView: 'overlay',
       zoom: 1,
+      sidebarTab: 'heatmap',
+      analysisMode: false,
+      drawing: false,
+      drawStart: null,
     };
 
     // --- Server status ---
@@ -594,6 +817,27 @@
     }
     checkServer();
     setInterval(checkServer, 10000);
+
+    // --- Sidebar Tabs ---
+    function switchSidebarTab(tab) {
+      state.sidebarTab = tab;
+      state.analysisMode = tab === 'analysis';
+
+      document.querySelectorAll('.sidebar-tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === tab)
+      );
+      document.getElementById('tabHeatmap').classList.toggle('active', tab === 'heatmap');
+      document.getElementById('tabAnalysis').classList.toggle('active', tab === 'analysis');
+
+      const drawCanvas = document.getElementById('drawingCanvas');
+      drawCanvas.classList.toggle('active', state.analysisMode);
+
+      if (state.analysisMode) {
+        resizeDrawingCanvas();
+        renderRegions();
+      }
+      redrawRegions();
+    }
 
     // --- File upload ---
     const uploadZone = document.getElementById('uploadZone');
@@ -644,6 +888,8 @@
             status: 'waiting',
             heatmapUrl: null,
             metrics: null,
+            regions: [],
+            regionAnalyzed: false,
           });
           renderFileList();
           updateButtons();
@@ -683,6 +929,10 @@
       state.activeIndex = i;
       renderFileList();
       showImage();
+      if (state.analysisMode) {
+        renderRegions();
+        redrawRegions();
+      }
     }
 
     function removeFile(i) {
@@ -698,6 +948,15 @@
       document.getElementById('analyzeBtn').disabled = !has;
       document.getElementById('clearBtn').disabled = !has;
       document.getElementById('downloadBtn').disabled = !state.files.some(f => f.heatmapUrl);
+      updateAnalysisButtons();
+    }
+
+    function updateAnalysisButtons() {
+      const f = state.files[state.activeIndex];
+      const hasRegions = f && f.regions.length > 0;
+      const hasHeatmap = f && f.heatmapUrl;
+      document.getElementById('blindSpotBtn').disabled = !(hasRegions && hasHeatmap);
+      document.getElementById('clearRegionsBtn').disabled = !hasRegions;
     }
 
     // --- Image display ---
@@ -739,7 +998,11 @@
         const origImg = document.getElementById('originalImg');
         origImg.src = view === 'heatmap' && f.heatmapUrl ? '' : f.dataUrl;
         origImg.style.opacity = view === 'heatmap' ? 0 : 1;
-        origImg.onload = () => updateHeatmapCanvas(f);
+        origImg.onload = () => {
+          updateHeatmapCanvas(f);
+          resizeDrawingCanvas();
+          redrawRegions();
+        };
 
         if (!f.heatmapUrl) {
           origImg.src = f.dataUrl;
@@ -750,6 +1013,9 @@
         document.getElementById('compareOriginal').src = f.dataUrl;
         document.getElementById('compareHeatmap').src = f.heatmapUrl || f.dataUrl;
       }
+
+      const drawCanvas = document.getElementById('drawingCanvas');
+      drawCanvas.classList.toggle('active', state.analysisMode && (view === 'overlay' || view === 'heatmap'));
 
       if (f.metrics) showMetrics(f.metrics);
       else document.getElementById('metricsBar').classList.remove('visible');
@@ -842,6 +1108,7 @@
         f.status = 'done';
         f.heatmapUrl = 'data:image/png;base64,' + data.heatmap;
         f.metrics = { ...data.metrics, time: elapsed + 's' };
+        f.regionAnalyzed = false;
         renderFileList();
         showImage();
         showMetrics(f.metrics);
@@ -925,6 +1192,7 @@
       renderFileList();
       updateButtons();
       showImage();
+      renderRegions();
     });
 
     // --- UI Helpers ---
@@ -942,6 +1210,393 @@
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 4000);
     }
+
+
+    // ===================================================
+    //  ANALYSIS MODE — Blind Spot Detection
+    // ===================================================
+
+    // --- Drawing Canvas ---
+    function resizeDrawingCanvas() {
+      const drawCanvas = document.getElementById('drawingCanvas');
+      const img = document.getElementById('originalImg');
+      if (!img.clientWidth) return;
+      drawCanvas.width = img.clientWidth;
+      drawCanvas.height = img.clientHeight;
+      drawCanvas.style.width = img.clientWidth + 'px';
+      drawCanvas.style.height = img.clientHeight + 'px';
+    }
+
+    const drawCanvas = document.getElementById('drawingCanvas');
+
+    drawCanvas.addEventListener('mousedown', e => {
+      if (!state.analysisMode) return;
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+
+      const rect = drawCanvas.getBoundingClientRect();
+      state.drawing = true;
+      state.drawStart = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
+    });
+
+    drawCanvas.addEventListener('mousemove', e => {
+      if (!state.drawing) return;
+      const rect = drawCanvas.getBoundingClientRect();
+      const cur = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
+      redrawRegions(cur);
+    });
+
+    drawCanvas.addEventListener('mouseup', e => {
+      if (!state.drawing) return;
+      state.drawing = false;
+
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+
+      const rect = drawCanvas.getBoundingClientRect();
+      const end = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
+
+      const x1 = Math.min(state.drawStart.x, end.x);
+      const y1 = Math.min(state.drawStart.y, end.y);
+      const x2 = Math.max(state.drawStart.x, end.x);
+      const y2 = Math.max(state.drawStart.y, end.y);
+
+      const w = x2 - x1;
+      const h = y2 - y1;
+      if (w < 0.01 || h < 0.01) {
+        redrawRegions();
+        return;
+      }
+
+      const colorIdx = f.regions.length % REGION_COLORS.length;
+      f.regions.push({
+        name: `영역 ${f.regions.length + 1}`,
+        x: x1, y: y1, w, h,
+        color: REGION_COLORS[colorIdx],
+        score: null,
+        grade: null,
+      });
+
+      f.regionAnalyzed = false;
+      renderRegions();
+      redrawRegions();
+      updateAnalysisButtons();
+      hideReport();
+    });
+
+    drawCanvas.addEventListener('mouseleave', () => {
+      if (state.drawing) {
+        state.drawing = false;
+        redrawRegions();
+      }
+    });
+
+    function redrawRegions(tempEnd) {
+      const canvas = document.getElementById('drawingCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+
+      f.regions.forEach((r, i) => {
+        const px = r.x * canvas.width;
+        const py = r.y * canvas.height;
+        const pw = r.w * canvas.width;
+        const ph = r.h * canvas.height;
+
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+
+        if (r.score !== null) {
+          let fillColor;
+          if (r.grade === 'blind') fillColor = 'rgba(239, 68, 68, 0.15)';
+          else if (r.grade === 'caution') fillColor = 'rgba(251, 191, 36, 0.15)';
+          else if (r.grade === 'good') fillColor = 'rgba(34, 197, 94, 0.15)';
+          else fillColor = 'rgba(99, 102, 241, 0.15)';
+          ctx.fillStyle = fillColor;
+          ctx.fillRect(px, py, pw, ph);
+        }
+
+        ctx.strokeRect(px, py, pw, ph);
+
+        ctx.fillStyle = r.color;
+        const labelText = r.score !== null ? `${r.name} (${Math.round(r.score)}%)` : r.name;
+        ctx.font = 'bold 12px Segoe UI, sans-serif';
+        const tm = ctx.measureText(labelText);
+        const lh = 18;
+        const lx = px;
+        const ly = py - lh - 2;
+
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(lx, ly < 0 ? py : ly, tm.width + 10, lh);
+        ctx.globalAlpha = 1;
+
+        ctx.fillStyle = '#fff';
+        ctx.fillText(labelText, lx + 5, (ly < 0 ? py + lh - 4 : ly + lh - 4));
+      });
+
+      if (state.drawing && tempEnd) {
+        const s = state.drawStart;
+        const px = Math.min(s.x, tempEnd.x) * canvas.width;
+        const py = Math.min(s.y, tempEnd.y) * canvas.height;
+        const pw = Math.abs(tempEnd.x - s.x) * canvas.width;
+        const ph = Math.abs(tempEnd.y - s.y) * canvas.height;
+
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 3]);
+        ctx.strokeRect(px, py, pw, ph);
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.1)';
+        ctx.fillRect(px, py, pw, ph);
+      }
+    }
+
+    // --- Region list in sidebar ---
+    function renderRegions() {
+      const f = state.files[state.activeIndex];
+      const list = document.getElementById('regionList');
+      const countEl = document.getElementById('regionCount');
+
+      if (!f || f.regions.length === 0) {
+        countEl.textContent = '';
+        list.innerHTML = '<div class="region-empty">마킹된 영역이 없습니다.<br/>이미지 위에서 드래그하세요.</div>';
+        return;
+      }
+
+      countEl.textContent = `(${f.regions.length})`;
+      list.innerHTML = f.regions.map((r, i) => `
+        <div class="region-item" onmouseenter="highlightRegion(${i})" onmouseleave="redrawRegions()">
+          <div class="region-color" style="background:${r.color}"></div>
+          <input class="region-name-input" value="${r.name}"
+            placeholder="영역 이름"
+            onchange="renameRegion(${i}, this.value)" />
+          ${r.score !== null ? `<span class="region-score ${r.grade}">${Math.round(r.score)}%</span>` : ''}
+          <button class="region-remove" onclick="removeRegion(${i})">&times;</button>
+        </div>
+      `).join('');
+
+      updateAnalysisButtons();
+    }
+
+    function renameRegion(i, name) {
+      const f = state.files[state.activeIndex];
+      if (f) {
+        f.regions[i].name = name || `영역 ${i + 1}`;
+        redrawRegions();
+      }
+    }
+
+    function removeRegion(i) {
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+      f.regions.splice(i, 1);
+      f.regionAnalyzed = false;
+      renderRegions();
+      redrawRegions();
+      updateAnalysisButtons();
+      hideReport();
+    }
+
+    function highlightRegion(i) {
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+
+      const canvas = document.getElementById('drawingCanvas');
+      const ctx = canvas.getContext('2d');
+
+      redrawRegions();
+
+      const r = f.regions[i];
+      const px = r.x * canvas.width;
+      const py = r.y * canvas.height;
+      const pw = r.w * canvas.width;
+      const ph = r.h * canvas.height;
+
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.strokeRect(px - 1, py - 1, pw + 2, ph + 2);
+    }
+
+    document.getElementById('clearRegionsBtn').addEventListener('click', () => {
+      const f = state.files[state.activeIndex];
+      if (!f) return;
+      f.regions = [];
+      f.regionAnalyzed = false;
+      renderRegions();
+      redrawRegions();
+      updateAnalysisButtons();
+      hideReport();
+    });
+
+    // --- Blind Spot Analysis Engine ---
+    document.getElementById('blindSpotBtn').addEventListener('click', runBlindSpotAnalysis);
+
+    async function runBlindSpotAnalysis() {
+      const f = state.files[state.activeIndex];
+      if (!f || !f.heatmapUrl || f.regions.length === 0) return;
+
+      showToast('Blind Spot 분석 중...', '');
+
+      const heatmapData = await getHeatmapPixelData(f.heatmapUrl);
+      if (!heatmapData) {
+        showToast('히트맵 데이터를 읽을 수 없습니다.', 'error');
+        return;
+      }
+
+      const { data: pixels, width: hw, height: hh } = heatmapData;
+
+      f.regions.forEach(r => {
+        const px = Math.round(r.x * hw);
+        const py = Math.round(r.y * hh);
+        const pw = Math.round(r.w * hw);
+        const ph = Math.round(r.h * hh);
+
+        let totalAlpha = 0;
+        let count = 0;
+
+        for (let y = py; y < py + ph && y < hh; y++) {
+          for (let x = px; x < px + pw && x < hw; x++) {
+            const idx = (y * hw + x) * 4;
+            totalAlpha += pixels[idx + 3];
+            count++;
+          }
+        }
+
+        const avgAlpha = count > 0 ? totalAlpha / count : 0;
+        const score = (avgAlpha / 255) * 100;
+
+        r.score = score;
+        if (score < 15) r.grade = 'blind';
+        else if (score < 40) r.grade = 'caution';
+        else if (score < 70) r.grade = 'good';
+        else r.grade = 'excellent';
+      });
+
+      f.regionAnalyzed = true;
+      renderRegions();
+      redrawRegions();
+      showReport(f);
+      showToast('Blind Spot 분석 완료!', 'success');
+    }
+
+    function getHeatmapPixelData(heatmapUrl) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = img.width;
+          c.height = img.height;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const imageData = ctx.getImageData(0, 0, c.width, c.height);
+          resolve({ data: imageData.data, width: c.width, height: c.height });
+        };
+        img.onerror = () => resolve(null);
+        img.src = heatmapUrl;
+      });
+    }
+
+    // --- Report ---
+    function showReport(f) {
+      const section = document.getElementById('reportSection');
+      const report = document.getElementById('analysisReport');
+      section.style.display = '';
+
+      const blindSpots = f.regions.filter(r => r.grade === 'blind');
+      const cautions = f.regions.filter(r => r.grade === 'caution');
+      const goods = f.regions.filter(r => r.grade === 'good' || r.grade === 'excellent');
+
+      const avgScore = f.regions.reduce((s, r) => s + r.score, 0) / f.regions.length;
+
+      const gradeLabel = g => ({ blind: '사각지대', caution: '주의 필요', good: '적정', excellent: '높은 주목' }[g]);
+
+      let verdictHtml = '';
+      if (blindSpots.length > 0) {
+        verdictHtml = `
+          <div class="report-verdict warn">
+            <strong>사각지대 발견!</strong><br/>
+            ${blindSpots.map(r => `<span style="color:var(--danger)">${r.name}</span>`).join(', ')}
+            영역의 주목도가 매우 낮습니다.<br/>
+            → 레이아웃 변경 또는 시각적 강조가 필요합니다.
+          </div>`;
+      } else if (cautions.length > 0) {
+        verdictHtml = `
+          <div class="report-verdict warn">
+            <strong>주의 영역 존재</strong><br/>
+            ${cautions.map(r => `${r.name}(${Math.round(r.score)}%)`).join(', ')}
+            — 주목도가 낮은 편입니다.<br/>
+            → 시각적 가중치(색상, 크기, 위치) 조정을 검토하세요.
+          </div>`;
+      } else {
+        verdictHtml = `
+          <div class="report-verdict ok">
+            <strong>양호</strong><br/>
+            모든 중요 영역이 적절한 주목도를 확보하고 있습니다.
+          </div>`;
+      }
+
+      report.innerHTML = `
+        <div class="report-title">분석 결과</div>
+        <div class="report-summary">
+          <div class="report-card">
+            <div class="report-card-label">평균 주목도</div>
+            <div class="report-card-value" style="color:${avgScore < 30 ? 'var(--danger)' : avgScore < 60 ? 'var(--warning)' : 'var(--success)'}">${Math.round(avgScore)}%</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-label">사각지대</div>
+            <div class="report-card-value" style="color:${blindSpots.length ? 'var(--danger)' : 'var(--success)'}">${blindSpots.length}개</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-label">주의 필요</div>
+            <div class="report-card-value" style="color:${cautions.length ? 'var(--warning)' : 'var(--success)'}">${cautions.length}개</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-label">양호</div>
+            <div class="report-card-value" style="color:var(--success)">${goods.length}개</div>
+          </div>
+        </div>
+
+        <table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:12px;">
+          <tr style="color:var(--text-dim);border-bottom:1px solid var(--border);">
+            <td style="padding:6px 4px;">영역</td>
+            <td style="padding:6px 4px;text-align:right;">주목도</td>
+            <td style="padding:6px 4px;text-align:right;">판정</td>
+          </tr>
+          ${f.regions.map(r => `
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 4px;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${r.color};margin-right:6px;vertical-align:middle;"></span>${r.name}</td>
+              <td style="padding:6px 4px;text-align:right;font-weight:600;">${Math.round(r.score)}%</td>
+              <td style="padding:6px 4px;text-align:right;"><span class="region-score ${r.grade}" style="font-size:11px;">${gradeLabel(r.grade)}</span></td>
+            </tr>
+          `).join('')}
+        </table>
+
+        ${verdictHtml}
+      `;
+    }
+
+    function hideReport() {
+      document.getElementById('reportSection').style.display = 'none';
+    }
+
+    // --- Window resize ---
+    window.addEventListener('resize', () => {
+      resizeDrawingCanvas();
+      redrawRegions();
+    });
   </script>
 </body>
 </html>
