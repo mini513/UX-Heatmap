@@ -1,4 +1,6 @@
 import io
+import os
+import sys
 import base64
 import numpy as np
 import torch
@@ -6,6 +8,10 @@ from PIL import Image
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from scipy.ndimage import gaussian_filter
+
+VENDOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vendor')
+if os.path.isdir(VENDOR_DIR):
+    sys.path.insert(0, VENDOR_DIR)
 
 app = Flask(__name__)
 CORS(app)
