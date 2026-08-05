@@ -419,7 +419,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5">
             <path d="M12 16V4m0 0l-4 4m4-4l4 4M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/>
           </svg>
-          <p>화면 이미지를 드래그하거나<br/><strong>클릭하여 선택</strong></p>
+          <p>화면 이미지를 드래그하거나<br/><strong>클릭하여 선택</strong><br/><span style="font-size:12px;color:var(--text-dim)">Ctrl+V 붙여넣기도 가능</span></p>
           <input type="file" id="fileInput" accept="image/*" multiple />
         </div>
       </div>
@@ -609,13 +609,35 @@
     });
     fileInput.addEventListener('change', e => addFiles(e.target.files));
 
+    // --- Clipboard paste ---
+    document.addEventListener('paste', e => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const imageFiles = [];
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) imageFiles.push(file);
+        }
+      }
+      if (imageFiles.length) {
+        e.preventDefault();
+        addFiles(imageFiles);
+        showToast(`${imageFiles.length}개 이미지 붙여넣기 완료`, 'success');
+      }
+    });
+
+    let pasteCounter = 0;
     function addFiles(fileList) {
       for (const file of fileList) {
         if (!file.type.startsWith('image/')) continue;
         const reader = new FileReader();
+        const fileName = file.name && file.name !== 'image.png'
+          ? file.name
+          : `paste_${++pasteCounter}_${new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}.png`;
         reader.onload = e => {
           state.files.push({
-            name: file.name,
+            name: fileName,
             size: file.size,
             dataUrl: e.target.result,
             file: file,
