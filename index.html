@@ -555,6 +555,114 @@
     }
     .report-verdict.warn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
     .report-verdict.ok { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); }
+
+    /* History */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 4px;
+      border: 1px solid var(--border);
+    }
+    .history-item:hover { background: var(--surface-hover); border-color: var(--text-dim); }
+    .history-thumb {
+      width: 48px; height: 36px;
+      border-radius: 4px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .history-info { flex: 1; min-width: 0; }
+    .history-badges { display: flex; gap: 4px; margin-top: 3px; }
+    .history-badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+    .history-badge.metric { background: rgba(99,102,241,0.15); color: var(--accent); }
+    .history-badge.regions { background: rgba(34,197,94,0.15); color: var(--success); }
+    .history-date-group {
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 8px 4px 4px;
+      font-weight: 600;
+    }
+
+    /* Insights */
+    .insights-bar {
+      display: none;
+      padding: 12px 24px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .insights-bar.visible { display: flex; }
+    .insight-card {
+      flex: 1;
+      min-width: 200px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      cursor: default;
+    }
+    .insight-card:hover { border-color: var(--text-dim); }
+    .insight-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .insight-icon {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .insight-icon.peak { background: var(--danger); }
+    .insight-icon.pattern { background: var(--accent); }
+    .insight-icon.distribution { background: var(--warning); }
+    .insight-icon.coverage { background: var(--success); }
+    .insight-icon.bias { background: #f97316; }
+    .insight-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    .insight-detail {
+      font-size: 11px;
+      color: var(--text-dim);
+      opacity: 0.7;
+      margin-top: 4px;
+      line-height: 1.4;
+      display: none;
+    }
+    .insight-card:hover .insight-detail { display: block; }
+    .insight-ref {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 6px;
+      padding-top: 5px;
+      border-top: 1px solid #f0f0f0;
+      line-height: 1.3;
+      display: none;
+    }
+    .insight-card:hover .insight-ref { display: block; }
+    .insight-principle {
+      color: #6366f1;
+      font-weight: 600;
+    }
+    .insight-source {
+      font-style: italic;
+      color: #a1a1aa;
+    }
+    .insight-icon.model { background: #8b5cf6; }
   </style>
 </head>
 <body>
@@ -608,6 +716,12 @@
           </svg>
           Blind Spot
         </button>
+        <button class="sidebar-tab" data-tab="history" onclick="switchSidebarTab('history')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          히스토리
+        </button>
       </div>
 
       <!-- Tab: Heatmap Controls -->
@@ -629,8 +743,8 @@
             </select>
           </div>
           <div class="control-group">
-            <label>블러 강도 <span id="blurVal">25</span></label>
-            <input type="range" id="blurSlider" min="5" max="50" value="25" />
+            <label>블러 강도 <span id="blurVal">10</span></label>
+            <input type="range" id="blurSlider" min="3" max="40" value="10" />
           </div>
         </div>
         <div class="sidebar-section">
@@ -639,6 +753,13 @@
               <path d="M2 12l5 5L20 4"/>
             </svg>
             분석 시작
+          </button>
+          <button class="btn btn-secondary" id="reanalyzeBtn" style="margin-top:8px;display:none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 4v6h6M23 20v-6h-6"/>
+              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
+            </svg>
+            전체 재분석
           </button>
           <div class="btn-group" style="margin-top:8px;">
             <button class="btn btn-secondary" id="downloadBtn" disabled>다운로드</button>
@@ -677,6 +798,19 @@
 
         <div class="sidebar-section" id="reportSection" style="display:none;">
           <div class="analysis-report visible" id="analysisReport"></div>
+        </div>
+      </div>
+
+      <!-- Tab: History -->
+      <div class="tab-content" id="tabHistory">
+        <div class="sidebar-section" style="flex:1; overflow-y:auto;">
+          <h3>분석 이력 <span id="historyCount"></span></h3>
+          <div id="historyList">
+            <div class="region-empty">저장된 이력이 없습니다.</div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <button class="btn btn-danger" id="clearHistoryBtn" disabled>전체 이력 삭제</button>
         </div>
       </div>
     </div>
@@ -776,6 +910,9 @@
           <span class="metric-value" id="metricTime">—</span>
         </div>
       </div>
+
+      <!-- Insights -->
+      <div class="insights-bar" id="insightsBar"></div>
     </div>
   </div>
 
@@ -828,6 +965,7 @@
       );
       document.getElementById('tabHeatmap').classList.toggle('active', tab === 'heatmap');
       document.getElementById('tabAnalysis').classList.toggle('active', tab === 'analysis');
+      document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
 
       const drawCanvas = document.getElementById('drawingCanvas');
       drawCanvas.classList.toggle('active', state.analysisMode);
@@ -836,6 +974,7 @@
         resizeDrawingCanvas();
         renderRegions();
       }
+      if (tab === 'history') renderHistory();
       redrawRegions();
     }
 
@@ -948,6 +1087,8 @@
       document.getElementById('analyzeBtn').disabled = !has;
       document.getElementById('clearBtn').disabled = !has;
       document.getElementById('downloadBtn').disabled = !state.files.some(f => f.heatmapUrl);
+      const hasDone = state.files.some(f => f.status === 'done');
+      document.getElementById('reanalyzeBtn').style.display = hasDone ? '' : 'none';
       updateAnalysisButtons();
     }
 
@@ -1063,6 +1204,7 @@
 
     // --- Analysis ---
     document.getElementById('analyzeBtn').addEventListener('click', analyzeAll);
+    document.getElementById('reanalyzeBtn').addEventListener('click', reanalyzeAll);
 
     async function analyzeAll() {
       const online = await checkServer();
@@ -1083,6 +1225,29 @@
       }
 
       showToast(`${toAnalyze.length}개 파일 분석 완료`, 'success');
+      updateButtons();
+    }
+
+    async function reanalyzeAll() {
+      const online = await checkServer();
+      if (!online) {
+        showToast('서버에 연결할 수 없습니다. python server.py를 실행하세요.', 'error');
+        return;
+      }
+
+      state.files.forEach(f => {
+        f.status = 'waiting';
+        f.heatmapUrl = null;
+        f.metrics = null;
+        f.regionAnalyzed = false;
+      });
+      renderFileList();
+
+      for (let i = 0; i < state.files.length; i++) {
+        await analyzeSingle(i);
+      }
+
+      showToast(`${state.files.length}개 파일 전체 재분석 완료`, 'success');
       updateButtons();
     }
 
@@ -1108,10 +1273,13 @@
         f.status = 'done';
         f.heatmapUrl = 'data:image/png;base64,' + data.heatmap;
         f.metrics = { ...data.metrics, time: elapsed + 's' };
+        f.insights = data.insights || [];
         f.regionAnalyzed = false;
         renderFileList();
         showImage();
         showMetrics(f.metrics);
+        showInsights(f.insights);
+        saveToHistory(f);
       } catch (err) {
         f.status = 'waiting';
         renderFileList();
@@ -1136,6 +1304,153 @@
       document.getElementById('metricFocus').textContent = m.focus_ratio || '—';
       document.getElementById('metricTime').textContent = m.time || '—';
     }
+
+    // --- Insights ---
+    function showInsights(insights) {
+      const bar = document.getElementById('insightsBar');
+      if (!insights || !insights.length) {
+        bar.classList.remove('visible');
+        return;
+      }
+      bar.classList.add('visible');
+      bar.innerHTML = insights.map(ins => `
+        <div class="insight-card">
+          <div class="insight-title">
+            <div class="insight-icon ${ins.type}"></div>
+            ${ins.title}
+          </div>
+          <div class="insight-desc">${ins.desc}</div>
+          <div class="insight-detail">${ins.detail}</div>
+          ${ins.principle ? `<div class="insight-ref"><span class="insight-principle">${ins.principle}</span>${ins.ref ? ` — <span class="insight-source">${ins.ref}</span>` : ''}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    // --- History (IndexedDB) ---
+    const DB_NAME = 'ux-heatmap-history';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'analyses';
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            store.createIndex('date', 'date');
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveToHistory(f) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).add({
+          name: f.name,
+          date: new Date().toISOString(),
+          originalUrl: f.originalUrl,
+          heatmapUrl: f.heatmapUrl,
+          metrics: f.metrics,
+          insights: f.insights || [],
+        });
+        await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+        db.close();
+        document.getElementById('clearHistoryBtn').disabled = false;
+      } catch (e) {
+        console.error('History save failed', e);
+      }
+    }
+
+    async function loadHistory() {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        return new Promise((res, rej) => {
+          req.onsuccess = () => { db.close(); res(req.result.reverse()); };
+          req.onerror = () => { db.close(); rej(req.error); };
+        });
+      } catch { return []; }
+    }
+
+    async function deleteHistoryItem(id) {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(id);
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      db.close();
+      renderHistory();
+    }
+
+    async function clearHistory() {
+      const db = await openDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).clear();
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      db.close();
+      renderHistory();
+    }
+
+    function restoreFromHistory(item) {
+      const f = {
+        name: item.name,
+        file: null,
+        originalUrl: item.originalUrl,
+        heatmapUrl: item.heatmapUrl,
+        status: 'done',
+        metrics: item.metrics,
+        insights: item.insights || [],
+        regionAnalyzed: false,
+      };
+      state.files.push(f);
+      state.selectedIndex = state.files.length - 1;
+      renderFileList();
+      showImage();
+      showMetrics(f.metrics);
+      showInsights(f.insights);
+      switchSidebarTab('heatmap');
+      showToast('이력에서 복원되었습니다.');
+    }
+
+    async function renderHistory() {
+      const list = document.getElementById('historyList');
+      const items = await loadHistory();
+      const clearBtn = document.getElementById('clearHistoryBtn');
+      clearBtn.disabled = items.length === 0;
+
+      if (items.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:#999;padding:24px;">분석 이력이 없습니다.</div>';
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+        const d = new Date(item.date);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        return `
+          <div class="history-item" style="display:flex;gap:8px;padding:8px;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:6px;cursor:pointer;background:#fff;transition:background .15s" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#fff'">
+            <img src="${item.heatmapUrl || item.originalUrl}" style="width:48px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0" />
+            <div style="flex:1;min-width:0;overflow:hidden">
+              <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
+              <div style="font-size:10px;color:#9ca3af">${dateStr}</div>
+              <div style="font-size:10px;color:#6b7280;margin-top:2px">Peak ${item.metrics?.peak_attention || '—'} | Focus ${item.metrics?.focus_ratio || '—'}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+              <button onclick="event.stopPropagation();restoreFromHistory(${JSON.stringify(item).replace(/"/g, '&quot;')})" style="font-size:10px;padding:2px 6px;border:1px solid #3b82f6;color:#3b82f6;background:none;border-radius:4px;cursor:pointer">복원</button>
+              <button onclick="event.stopPropagation();deleteHistoryItem(${item.id})" style="font-size:10px;padding:2px 6px;border:1px solid #ef4444;color:#ef4444;background:none;border-radius:4px;cursor:pointer">삭제</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      if (confirm('모든 분석 이력을 삭제하시겠습니까?')) clearHistory();
+    });
 
     // --- Zoom ---
     function zoomIn() {
